@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Perritos Aleatorios</title>
+  </head>
+  <body>
+    <h1>Perritos app</h1>
+
+    <span id="error"></span>
+
+    <section id="randomDogs" class="container">
+      <h2>Perritos aleatorios</h2>
+
+      <article>
+        <img id="img1" alt="Foto perrito Aleatorio" />
+        <button id="btn1">Favoritos</button>
+      </article>
+
+      <article>
+        <img id="img2" alt="Foto perrito Aleatorio" />
+        <button id="btn2">Favoritos</button>
+      </article>
+
+      <button onclick="loadRandomDogs()" class="button">
+        Siguiente Imagen
+      </button>
+    </section>
+
+    <section id="favoriteDogs">
+      <h2>Perritos favoritos</h2>
+      <article></article>
+    </section>
+
+    <script src="main.js"></script>
+  </body>
+</html>
