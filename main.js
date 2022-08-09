@@ -1,8 +1,18 @@
-const API_URL_RANDOM =
-  "https://api.thedogapi.com/v1/images/search?limit=2&api_key=18a4453d-86f1-4962-b5e2-18acdb29738e";
+const api = axios.create({
+  baseURL: "https://api.thedogapi.com/v1/",
+});
 
-const API_URL_FAVORITES =
-  "https://api.thedogapi.com/v1/favourites?&api_key=18a4453d-86f1-4962-b5e2-18acdb29738e";
+api.defaults.headers.common["X-API-KEY"] =
+  "18a4453d-86f1-4962-b5e2-18acdb29738e";
+
+const API_URL_RANDOM = "https://api.thedogapi.com/v1/images/search?limit=2";
+
+const API_URL_FAVORITES = "https://api.thedogapi.com/v1/favourites?";
+
+const API_URL_FAVORITES_DELETE = (id) =>
+  `https://api.thedogapi.com/v1/favourites/${id}`;
+
+const API_URL_UPLOAD = "https://api.thedogapi.com/v1/images/upload";
 
 const spanError = document.getElementById("error");
 
@@ -29,7 +39,12 @@ async function loadRandomDogs() {
 }
 
 async function loadFavoriteDogs() {
-  const response = await fetch(API_URL_FAVORITES);
+  const response = await fetch(API_URL_FAVORITES, {
+    method: "GET",
+    headers: {
+      "X-API-KEY": "18a4453d-86f1-4962-b5e2-18acdb29738e",
+    },
+  });
   const data = await response.json();
   console.log("favorites");
   console.log(data);
@@ -37,8 +52,14 @@ async function loadFavoriteDogs() {
   if (response.status !== 200) {
     spanError.innerHTML = "Hubo un error: " + response.status;
   } else {
+    const section = document.getElementById("favoriteDogs");
+    section.innerHTML = "";
+    const h2 = document.createElement("h2");
+    const h2Text = document.createTextNode("Dogos favoritos");
+    h2.appendChild(h2Text);
+    section.appendChild(h2);
+
     data.map((dog) => {
-      const section = document.getElementById("favoriteDogs");
       const article = document.createElement("article");
       const img = document.createElement("img");
       const btn = document.createElement("button");
@@ -49,6 +70,7 @@ async function loadFavoriteDogs() {
       img.width = 150;
       article.appendChild(img);
       article.appendChild(btn);
+      btn.onclick = () => deleteFavorites(dog.id);
 
       section.appendChild(article);
     });
@@ -56,23 +78,61 @@ async function loadFavoriteDogs() {
 }
 
 async function saveFavoriteDog(id) {
-  const response = await fetch(API_URL_FAVORITES, {
-    method: "POST",
+  // const response = await fetch(API_URL_FAVORITES, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //     "X-API-KEY": "18a4453d-86f1-4962-b5e2-18acdb29738e",
+  //   },
+  //   body: JSON.stringify({
+  //     image_id: id,
+  //   }),
+  // });
+  //const data = await response.json();
+
+  const { data, status } = await api.post("/favourites", {
+    image_id: id,
+  });
+  console.log("save");
+
+  if (status !== 200) {
+    spanError.innerHTML = "Hubo un error: " + response.status + data.message;
+  } else {
+    console.log("Dogo guardado en favoritos");
+    loadFavoriteDogs();
+  }
+}
+
+async function deleteFavorites(id) {
+  const response = await fetch(API_URL_FAVORITES_DELETE(id), {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      "X-API-KEY": "18a4453d-86f1-4962-b5e2-18acdb29738e",
     },
-    body: JSON.stringify({
-      image_id: id,
-    }),
   });
-
   const data = await response.json();
-  console.log("save");
-  console.log(response);
-
   if (response.status !== 200) {
     spanError.innerHTML = "Hubo un error: " + response.status + data.message;
+  } else {
+    console.log("Dogo eliminado de favoritos");
+    loadFavoriteDogs();
   }
+}
+
+async function uploadDogoPhoto() {
+  const form = document.getElementById("uploadingForm");
+  const formData = new FormData(form);
+  console.log(formData.get("file"));
+
+  const response = await fetch(API_URL_UPLOAD, {
+    method: "POST",
+    headers: {
+      //"Content-Type": "multipart/form-data",
+      "X-API-KEY": "18a4453d-86f1-4962-b5e2-18acdb29738e",
+    },
+    body: formData,
+  });
 }
 
 loadRandomDogs();
